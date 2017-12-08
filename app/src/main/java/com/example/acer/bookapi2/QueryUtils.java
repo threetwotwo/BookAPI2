@@ -1,5 +1,8 @@
 package com.example.acer.bookapi2;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ListView;
@@ -41,7 +44,6 @@ public class QueryUtils {
     private QueryUtils() {
     }
 
-    ;
 
     /**
      * Main helper method that queries the book API data and return a list of {@link Book} objects
@@ -58,11 +60,9 @@ public class QueryUtils {
             Log.e(LOG_TAG, "Problem making HTTP request");
         }
 
-        //Extract relevant fields from the JSON response and create a list of book objects
-        List<Book> books = extractFeatureFromJson(jsonResponse);
 
         //Return a list of book objects
-        return books;
+        return extractFeatureFromJson(jsonResponse);
     }
 
     /**
@@ -75,11 +75,15 @@ public class QueryUtils {
         }
 
         double rating;
-        String url;
+        int ratingsCount;
+        String infoUrl;
+        String previewUrl;
         String title;
         String author;
+        String categories = null;
         String description;
         String date;
+        Bitmap image = null;
 
         //Create a new empty array list that will hold book objects
         List<Book> books = new ArrayList<>();
@@ -105,6 +109,12 @@ public class QueryUtils {
                     rating = 0;
                 } else {
                     rating = bookDetails.getDouble("averageRating");
+                }
+
+                if (bookDetails.isNull("ratingsCount")) {
+                    ratingsCount = 0;
+                } else {
+                    ratingsCount = bookDetails.getInt("ratingsCount");
                 }
 
                 if (bookDetails.isNull("title")) {
@@ -134,11 +144,35 @@ public class QueryUtils {
                 }
 
                 if (bookDetails.isNull("infoLink")) {
-                    url = "";
+                    infoUrl = "";
                 } else {
-                    url = bookDetails.getString("infoLink");
+                    infoUrl = bookDetails.getString("infoLink");
                 }
-                Book book = new Book(rating, title, author, description, date, url);
+
+                if (bookDetails.isNull("previewLink")) {
+                    previewUrl = "";
+                } else {
+                    previewUrl = bookDetails.getString("previewLink");
+                }
+
+                if (bookDetails.isNull("categories")) {
+                    author = "";
+                } else {
+
+                    JSONArray categoriesArray = bookDetails.getJSONArray("categories");
+                    categories = toStringArray(categoriesArray);
+                }
+
+                if (bookDetails.getJSONObject("imageLinks").isNull("smallThumbnail")) {
+                    image = null;
+                } else {
+                    try {
+                        image = getImageFromUrl(bookDetails.getJSONObject("imageLinks").getString("smallThumbnail"));
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
+                }
+                Book book = new Book(rating, ratingsCount, title, author, description, date, infoUrl, previewUrl, categories, image);
 
                 books.add(book);
             }
@@ -146,6 +180,12 @@ public class QueryUtils {
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Problem with parsing JSON results", e);
         }
+        Collections.sort(books, new Comparator<Book>() {
+            @Override
+            public int compare(Book book, Book t1) {
+                return (int) (t1.getAverageRating() - book.getAverageRating());
+            }
+        });
         return books;
     }
 
@@ -205,6 +245,25 @@ public class QueryUtils {
             }
         }
         return jsonResponse;
+    }
+
+    private static Bitmap getImageFromUrl(String imageUrl) throws MalformedURLException {
+        URL url = new URL(imageUrl);
+        HttpURLConnection connection = null;
+        try {
+            connection = (HttpURLConnection) url.openConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        InputStream inputStream = null;
+        try {
+            assert connection != null;
+            inputStream = connection.getInputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return BitmapFactory.decodeStream(inputStream);
     }
 
     private static String readFromStream(InputStream inputStream) throws IOException {

@@ -1,19 +1,22 @@
 package com.example.acer.bookapi2;
 
-import android.support.annotation.NonNull;
-
-import java.util.Comparator;
+import android.graphics.Bitmap;
 
 /**
  * An {@link Book} object contains information related to a single book.
  */
 
-public class Book{
+public class Book {
 
     /**
      * Average rating of the book
      */
     private double mAverageRating;
+
+    /**
+     * number of ratings of the book
+     */
+    private int mRatingsCount;
 
     /**
      * Title of the book
@@ -35,7 +38,14 @@ public class Book{
      */
     private String mDate;
 
-    private String mUrl;
+    private String mInfoUrl;
+
+    private String mPreviewUrl;
+
+    private String mCategories;
+
+    private Bitmap mBookImage;
+
 
     /**
      * Constructs a new {@link Book} object
@@ -46,13 +56,17 @@ public class Book{
      * @param description is the short description of the book
      * @param date        is the published date of the book
      */
-    public Book(double rating, String title, String authors, String description, String date, String url) {
+    public Book(double rating, int ratingsCount, String title, String authors, String description, String date, String infoUrl, String previewUrl, String categories, Bitmap image) {
         mAverageRating = rating;
+        mRatingsCount=ratingsCount;
         mTitle = title;
         mAuthors = authors;
         mDescription = description;
         mDate = date;
-        mUrl=url;
+        mInfoUrl = infoUrl;
+        mPreviewUrl = previewUrl;
+        mCategories = categories;
+        mBookImage = image;
     }
 
     /**
@@ -60,6 +74,13 @@ public class Book{
      */
     public double getAverageRating() {
         return mAverageRating;
+    }
+
+    /**
+     * Get the average rating of the book
+     */
+    public int getRatingsCount() {
+        return mRatingsCount;
     }
 
     /**
@@ -91,10 +112,31 @@ public class Book{
     }
 
     /**
-     * Get the url of the book
+     * Get the info url of the book
      */
-    public String getUrl() {
-        return mUrl;
+    public String getInfoUrl() {
+        return mInfoUrl;
+    }
+
+    /**
+     * Get the preview url of the book
+     */
+    public String getPreviewUrl() {
+        return mPreviewUrl;
+    }
+
+    /**
+     * Get the categories of the book
+     */
+    public String getCategories() {
+        return mCategories;
+    }
+
+    /**
+     * Get the image of the book
+     */
+    public Bitmap getBookImage() {
+        return mBookImage;
     }
 
 }

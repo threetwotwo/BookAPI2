@@ -6,5 +6,11 @@
 
     <!-- Error message when there is no internet connectivity [CHAR LIMIT=NONE] -->
     <string name="no_internet_connection">No internet connection.</string>
+    <string name="enter_a_keyword">Enter a keyword</string>
+    <string name="search">Search</string>
+    <string name="no_ratings_available">No ratings available</string>
+    <string name="preview">Preview</string>
+    <string name="google_play_store">Google Play Store</string>
+    <string name="description">Description</string>
 
 </resources>

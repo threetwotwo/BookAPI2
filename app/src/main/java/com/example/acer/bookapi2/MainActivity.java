@@ -57,9 +57,9 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         // Find a reference to the {@link ListView} in the layout
-        final ListView bookListView = (ListView) findViewById(R.id.list);
+        final ListView bookListView = findViewById(R.id.list);
 
-        mEmptyStateTextView = (TextView) findViewById(R.id.empty_view);
+        mEmptyStateTextView = findViewById(R.id.empty_view);
         bookListView.setEmptyView(mEmptyStateTextView);
 
         final View loadingIndicator = findViewById(R.id.loading_indicator);
@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 mAdapter.clear();
                 String keyword = String.valueOf(searchEditText.getText());
-                query = BOOK_REQUEST_URL + keyword;
+                query = BOOK_REQUEST_URL + keyword.trim().replace(" ", "+");
                 Log.i(LOG_TAG, "TEST: query = " + query);
                 loadingIndicator.setVisibility(View.VISIBLE);
                 mEmptyStateTextView.setVisibility(View.GONE);
@@ -121,24 +121,37 @@ public class MainActivity extends AppCompatActivity
                 Book currentBook = mAdapter.getItem(position);
 
                 // Convert the String URL into a URI object (to pass into the Intent constructor)
-                Uri bookUri = Uri.parse(currentBook.getUrl());
+                Uri bookUri = Uri.parse(currentBook.getInfoUrl());
 
                 // Create a new intent to view the earthquake URI
                 Intent websiteIntent = new Intent(Intent.ACTION_VIEW, bookUri);
-                Log.i(LOG_TAG, "TEST: The Uri is: " + currentBook.getUrl());
+                Intent bookDetailsIntent = new Intent(MainActivity.this, BookDetailsActivity.class);
+                sendIntents(bookDetailsIntent, currentBook);
+                Log.i(LOG_TAG, "TEST: The Uri is: " + currentBook.getInfoUrl());
                 // Send the intent to launch a new activity
-                startActivity(websiteIntent);
+                startActivity(bookDetailsIntent);
             }
         });
+    }
 
-
+    private void sendIntents(Intent intent, Book book) {
+        intent.putExtra("title", book.getTitle());
+        intent.putExtra("rating", book.getAverageRating());
+        intent.putExtra("ratingsCount", book.getRatingsCount());
+        intent.putExtra("authors", book.getAuthors());
+        intent.putExtra("date", book.getDate());
+        intent.putExtra("categories", book.getCategories());
+        intent.putExtra("description", book.getDescription());
+        intent.putExtra("infoUrl", book.getInfoUrl());
+        intent.putExtra("previewUrl", book.getPreviewUrl());
+        intent.putExtra("bookImage", book.getBookImage());
     }
 
     @Override
     public Loader<List<Book>> onCreateLoader(int i, Bundle bundle) {
         // Create a new loader for the given URL
         Log.i(LOG_TAG, "TEST2: query = " + query);
-        return new BookLoader(this, query +"&maxResults=30");
+        return new BookLoader(this, query);
     }
 
     @Override

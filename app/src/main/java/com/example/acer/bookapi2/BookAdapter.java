@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import java.text.ParseException;
@@ -40,14 +42,17 @@ public class BookAdapter extends ArrayAdapter<Book> {
 
         Book currentBook = getItem(position);
 
-        TextView ratingView = listItemView.findViewById(R.id.tv_average_rating);
-        ratingView.setText(String.valueOf(currentBook.getAverageRating()));
-        // Set the proper background color on the magnitude circle.
-        // Fetch the background from the TextView, which is a GradientDrawable.
-        GradientDrawable magnitudeCircle = (GradientDrawable) ratingView.getBackground();   // Get the appropriate background color based on the current earthquake magnitude
-        int ratingColor = getRatingColor(currentBook.getAverageRating());
-        // Set the color on the magnitude circle
-        magnitudeCircle.setColor(ratingColor);
+        RatingBar ratingBar = listItemView.findViewById(R.id.rb_list_rating);
+        TextView ratingsCount = listItemView.findViewById(R.id.tv_list_ratings_count);
+        TextView noRatingView = listItemView.findViewById(R.id.tv_list_no_rating);
+
+        if (currentBook != null) {
+            ratingBar.setRating((float) currentBook.getAverageRating());
+        }
+        ratingsCount.setText((int) currentBook.getRatingsCount() + " ratings");
+
+        ImageView bookImage = listItemView.findViewById(R.id.iv_list_book_image);
+        bookImage.setImageBitmap(currentBook.getBookImage());
 
         TextView titleView = listItemView.findViewById(R.id.tv_title);
         titleView.setText(currentBook.getTitle());
@@ -55,8 +60,8 @@ public class BookAdapter extends ArrayAdapter<Book> {
         TextView authorsView = listItemView.findViewById(R.id.tv_authors);
         authorsView.setText(currentBook.getAuthors());
 
-        TextView desciptionView = listItemView.findViewById(R.id.tv_description);
-        desciptionView.setText(currentBook.getDescription());
+        TextView descriptionView = listItemView.findViewById(R.id.tv_description);
+        descriptionView.setText(currentBook.getCategories());
 
         TextView publishDateView = listItemView.findViewById(R.id.tv_publish_date);
 
